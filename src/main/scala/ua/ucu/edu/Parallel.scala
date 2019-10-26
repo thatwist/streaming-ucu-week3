@@ -7,20 +7,41 @@ trait Task[A] {
 }
 object Task {
 
-  def task[T](e: => T): Task[T] = ???
+  def apply[T](e: => T): Task[T] = {
+    val forkJoinPool = new ForkJoinPool
+
+    val t = new RecursiveTask[T] {
+      def compute: T = e
+    }
+    println(Thread.currentThread)
+    // schedule
+    Thread.currentThread match {
+      case worker: ForkJoinWorkerThread =>
+        t.fork
+      case _ => forkJoinPool.execute(t)
+    }
+    // return the scheduled task
+    new Task[T] {
+      def join: T = t.join
+    }
+  }
+}
+
+object Test extends App {
+  Parallel.parallel(println(1), println(2))
 }
 
 
 object Parallel {
 
   def parallel[A, B](cA: => A, cB: => B): (A, B) = {
-    val tB: Task[B] = Task.task { cB }
+    val tB: Task[B] = Task { cB }
     val tA: A = cA
     (tA, tB.join)
   }
 
   def parallelWrong[A, B](cA: => A, cB: => B): (A, B) = {
-    val tB: B = Task.task {
+    val tB: B = Task {
       cB
     }.join
     val tA: A = cA
