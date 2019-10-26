@@ -1,8 +1,9 @@
 package ua.ucu.edu
 
-object Threads {
+import java.util.concurrent.ForkJoinPool
 
-  object ThreadsCreation extends App {
+object Threads1 extends App {
+
     class MyThread extends Thread {
       override def run(): Unit = {
         println("New thread running.")
@@ -10,9 +11,9 @@ object Threads {
     }
     val t = new MyThread
     t.start()
-    t.join()
+    Thread.sleep(1000)
     println("New thread joined.")
-  }
+    t.join()
 }
 
 object Pools {
@@ -34,9 +35,18 @@ object ForkJoin extends App {
   import java.util.concurrent.RecursiveTask
 
   class FibonacciComputation(val number: Int) extends RecursiveTask[Int] {
-
     override def compute: Int = {
-      ???
+      if (number <= 1) {
+        1
+      } else {
+        val comp1 = new FibonacciComputation(number - 1)
+        val comp2 = new FibonacciComputation(number - 2)
+        comp1.fork()
+        comp2.compute() + comp1.join()
+      }
     }
   }
+
+  val l = new ForkJoinPool().submit(new FibonacciComputation(10))
+  println(l.get())
 }
