@@ -36,7 +36,7 @@ object ForkJoin extends App {
 
   class FibonacciComputation(val number: Int) extends RecursiveTask[Int] {
     override def compute: Int = {
-      if (number <= 1) {
+      if (number <= 2) {
         1
       } else {
         val comp1 = new FibonacciComputation(number - 1)
@@ -47,6 +47,6 @@ object ForkJoin extends App {
     }
   }
 
-  val l = new ForkJoinPool().submit(new FibonacciComputation(10))
+  val l = new ForkJoinPool().submit(new FibonacciComputation(3))
   println(l.get())
 }

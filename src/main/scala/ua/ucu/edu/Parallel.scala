@@ -5,14 +5,26 @@ import java.util.concurrent.{ForkJoinPool, ForkJoinWorkerThread, RecursiveTask}
 trait Task[A] {
   def join: A // blocks and returns when ready
 }
-object Task {
 
-  def apply[T](e: => T): Task[T] = ???
+object Task {
+  val pool = new ForkJoinPool(4)
+  def apply[T](e: T): Task[T] = {
+    val task = new RecursiveTask[T] {
+      override def compute(): T = e
+    }
+    pool.execute(task)
+    task.fork()
+    new Task[T] {
+      override def join: T = task.join()
+    }
+  }
 }
 
 object Test extends App {
   Parallel.parallel(
-    Parallel.parallel(println("split1"), println("split1.2")),
+    Parallel.parallel(
+      println("split1"),
+      println("split1.2")),
     println("split2")
   )
 }
