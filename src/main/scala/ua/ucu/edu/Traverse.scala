@@ -13,10 +13,10 @@ case class Employee(
   departmentId: Int)
 
 case class Department(
-  department_id: Int,
-  department_name: String,
-  manager_id: Int,
-  location_id: Int)
+  departmentId: Int,
+  departmentName: String,
+  managerId: Int,
+  locationId: Int)
 
 object Traverse extends App {
 
