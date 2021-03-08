@@ -5,41 +5,58 @@ import java.util.concurrent.{ForkJoinPool, ForkJoinWorkerThread, RecursiveTask}
 trait Task[A] {
   def join: A // blocks and returns when ready
 }
+
 object Task {
-
-  val forkJoinPool = new ForkJoinPool()
-
-  def task[T](e: => T): Task[T] = {
-    val t = new RecursiveTask[T] {
-      override def compute(): T = {
-        e
-      }
+  val pool = new ForkJoinPool(4)
+  def apply[T](e: T): Task[T] = {
+    val task = new RecursiveTask[T] {
+      override def compute(): T = e
     }
-
-    Thread.currentThread() match {
-      case worker: ForkJoinWorkerThread =>
-        t.fork()
-      case _ =>
-        forkJoinPool.execute(t)
-    }
-
+    pool.execute(task)
+    task.fork()
     new Task[T] {
-      override def join: T = t.join
+      override def join: T = task.join()
     }
   }
 }
 
+object Test extends App {
+  Parallel.parallel(
+    Parallel.parallel(
+      println("split1"),
+      println("split1.2")),
+    println("split2")
+  )
+}
+
+object T extends App {
+  val l = (1 to 10000000).toList
+  println(org.scalameter.measure(l.map(_*2)))
+  println(org.scalameter.measure(l.par.map(_*2)))
+}
+
+object Tt extends App {
+  implicit class S(s: String) {
+    def *(ss: String): String = "1"
+    def -(ss: String): String = "2"
+  }
+
+  val l = "6" * "2" - "3"
+
+  println(l)
+}
 
 object Parallel {
 
+
   def parallel[A, B](cA: => A, cB: => B): (A, B) = {
-    val tB: Task[B] = Task.task { cB }
+    val tB: Task[B] = Task { cB }
     val tA: A = cA
     (tA, tB.join)
   }
 
   def parallelWrong[A, B](cA: => A, cB: => B): (A, B) = {
-    val tB: B = Task.task {
+    val tB: B = Task {
       cB
     }.join
     val tA: A = cA
@@ -59,7 +76,7 @@ Ratio between the surfaces of 1/4 of a circle and 1/4 of a square:
 Estimating λ: randomly sample points inside the square.
 Count how many fall inside the circle. Multiply this ratio by 4 for an estimate of pi
 */
-object MC extends App {
+object MC {
   import scala.util.Random
 
   def mcCount(iter: Int): Int = {
@@ -79,15 +96,8 @@ object MC extends App {
 
   import Parallel._
   def monteCarloPiPar(iter: Int): Double = {
-    val ((pi1, pi2), (pi3, pi4)) =
-      parallel(
-        parallel(mcCount(iter/4), mcCount(iter/4)),
-        parallel(mcCount(iter/4), mcCount(iter - 3*(iter/4)))
-      )
+    val ((pi1, pi2), (pi3, pi4)) = parallel( parallel(mcCount(iter/4), mcCount(iter/4)),
+      parallel(mcCount(iter/4), mcCount(iter - 3*(iter/4))) )
     4.0 * (pi1 + pi2 + pi3 + pi4) / iter
   }
-
-  val result = monteCarloPiPar(10000)
-
-  println(result)
 }

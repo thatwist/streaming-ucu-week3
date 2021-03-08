@@ -1,0 +1,1 @@
+(setq sbt-hydra:hydra-previous-commands '("streaming-ucu-week3/compile" "streaming-ucu-week3/run " "streaming-ucu-week3/name" "streaming-ucu-week3/run 5" "streaming-ucu-week3/test:test" "streaming-ucu-week3/clean"))

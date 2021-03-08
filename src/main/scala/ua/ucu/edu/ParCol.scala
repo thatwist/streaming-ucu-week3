@@ -1,6 +1,7 @@
 package ua.ucu.edu
 
-import scala.collection.parallel.immutable
+import scala.collection.parallel.immutable.ParSeq
+import scala.collection.parallel.{Combiner, SeqSplitter, immutable}
 
 object ParCol {
 
@@ -12,15 +13,13 @@ object ParCol {
 
     def seq = new collection.immutable.WrappedString(str)
 
-    def splitter = ???
+    def splitter: SeqSplitter[Char] = ???
 
-    override def newCombiner = ???
+    override def newCombiner: Combiner[Char, ParSeq[Char]] = ???
 
   }
 
-
   ???
-
 
   object CustomCharCount extends App {
     val txt = "A custom text " * 250000

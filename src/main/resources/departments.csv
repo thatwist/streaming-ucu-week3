@@ -1,0 +1,6 @@
+department_id,department_name,manager_id,location_id
+90,Administration,200,1700
+20,Marketing,201,1800
+60,Purchasing,114,1700
+40,Human Resources,203,2400
+100,Shipping,121,1500      
