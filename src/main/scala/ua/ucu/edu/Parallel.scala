@@ -29,8 +29,25 @@ object Test extends App {
   )
 }
 
+object T extends App {
+  val l = (1 to 10000000).toList
+  println(org.scalameter.measure(l.map(_*2)))
+  println(org.scalameter.measure(l.par.map(_*2)))
+}
+
+object Tt extends App {
+  implicit class S(s: String) {
+    def *(ss: String): String = "1"
+    def -(ss: String): String = "2"
+  }
+
+  val l = "6" * "2" - "3"
+
+  println(l)
+}
 
 object Parallel {
+
 
   def parallel[A, B](cA: => A, cB: => B): (A, B) = {
     val tB: Task[B] = Task { cB }

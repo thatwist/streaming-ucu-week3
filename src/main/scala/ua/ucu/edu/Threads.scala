@@ -30,6 +30,22 @@ object Pools {
   })
 }
 
+object TestFuture extends App {
+
+  import scala.concurrent.Future
+  import scala.concurrent.ExecutionContext.Implicits.global
+
+  def fib(n: Int): Future[Int] = n match {
+    case 0 => Future.successful(0)
+    case 1 => Future.successful(1)
+    case _ => fib(n - 1).flatMap(f => fib(n - 2).map(_ + f))
+  }
+
+  println(fib(10).onComplete { v =>
+    println(v)
+  })
+}
+
 object ForkJoin extends App {
 
   import java.util.concurrent.RecursiveTask
