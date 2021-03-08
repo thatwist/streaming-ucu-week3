@@ -24,6 +24,8 @@ object Actors {
   val system: ActorSystem = ActorSystem.create("MySystem")
   val greeter: ActorRef = system.actorOf(Props[Greeting], "greeter")
 
+  greeter ! ""
+
   import akka.actor.Props
 
   val actorRef = ???
